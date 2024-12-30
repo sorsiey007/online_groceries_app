@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:online_groceries_app/controller/auth_controller.dart';
+import 'package:online_groceries_app/screens/change_password_screen.dart';
 import 'package:online_groceries_app/screens/home/home_screen.dart';
 import 'package:online_groceries_app/screens/sign_up_screen.dart';
 import 'package:online_groceries_app/themes/app_theme.dart';
@@ -49,8 +51,8 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _signIn() async {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       showBottomMessage(context, 'Please fill in all fields');
@@ -58,12 +60,13 @@ class _SignInScreenState extends State<SignInScreen> {
     }
 
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = true;
     });
 
-    final Uri url =
-        Uri.parse('https://online-shop-hxhm.onrender.com/api/login');
-    final Map<String, String> data = {'email': email, 'password': password};
+    final url = Uri.parse('https://online-shop-hxhm.onrender.com/api/login');
+    final data = {'email': email, 'password': password};
+
+    final AuthController _authController = AuthController();
 
     try {
       final response = await http.post(
@@ -73,20 +76,28 @@ class _SignInScreenState extends State<SignInScreen> {
       );
 
       if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        final token = responseData['token'];
+
+        // Save token using AuthController
+        await _authController.saveToken(token);
+        print("token: $token");
+
+        // Navigate to HomeScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),
         );
       } else {
         final responseData = json.decode(response.body);
-        showBottomMessage(
-            context, responseData['message'] ?? 'Invalid email or password');
+        final message = responseData['message'] ?? 'Invalid email or password';
+        showBottomMessage(context, message);
       }
-    } catch (_) {
-      showBottomMessage(context, "Failed to connect to the server");
+    } catch (e) {
+      showBottomMessage(context, "Failed to connect to the server: $e");
     } finally {
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
     }
   }
@@ -131,31 +142,6 @@ class _SignInScreenState extends State<SignInScreen> {
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: MyAppTheme.mainColor),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialButton({
-    required String assetName,
-    required VoidCallback onPressed,
-  }) {
-    return SizedBox(
-      width: 50,
-      height: 50,
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-            side: const BorderSide(color: MyAppTheme.borderColor12, width: 1),
-          ),
-        ),
-        child: SvgPicture.asset(
-          assetName,
-          width: 70, // Set the size of the image to be bigger
-          height: 70, // Set the size of the image to be bigger
-          fit: BoxFit.contain, // Adjust the fit if needed
         ),
       ),
     );
@@ -265,7 +251,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {
-                        // Forgot password logic
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangePasswordScreen(
+                                email: _emailController.text),
+                          ),
+                        );
                       },
                       child: Text(
                         'Forgot Password?',
@@ -289,8 +281,8 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       child: _isLoading
-                          ? const CircularProgressIndicator(
-                              valueColor: const AlwaysStoppedAnimation<Color>(
+                          ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
                                   MyAppTheme.primaryColor),
                             )
                           : Text(
@@ -334,48 +326,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             decorationColor: MyAppTheme.mainColor,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-                  // The 'Or' label with styling
-                  Row(
-                    children: [
-                      const Expanded(
-                        child: Divider(color: MyAppTheme.borderColor12),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Or sign in with',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: MyAppTheme.borderColor12,
-                            fontFamily: 'KantumruyPro',
-                          ),
-                        ),
-                      ),
-                      const Expanded(
-                        child: Divider(color: MyAppTheme.borderColor12),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildSocialButton(
-                        assetName: 'assets/images/svg/facebook_icon.svg',
-                        onPressed: () {
-                          // Facebook sign-in logic
-                        },
-                      ),
-                      _buildSocialButton(
-                        assetName: 'assets/images/svg/google_icon.svg',
-                        onPressed: () {
-                          // Google sign-in logic
-                        },
                       ),
                     ],
                   ),

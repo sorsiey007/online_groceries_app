@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:online_groceries_app/controller/auth_controller.dart';
 import 'package:online_groceries_app/screens/home/home_screen.dart';
 import 'package:online_groceries_app/screens/sign_in_screen.dart';
 import 'package:online_groceries_app/themes/app_theme.dart';
@@ -19,6 +20,8 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
+  bool _isLoading = false; // To show loading spinner
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -71,19 +74,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    if (!_isEmailValidSignUp(email)) {
+      showBottomMessage(context, 'Incorrect email format!');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
+
     final Uri url =
         Uri.parse('https://online-shop-hxhm.onrender.com/api/register');
     final Map<String, String> data = {
-      'name': username, // Username
-      'fullname': username, // Full name (same as username here)
-      'email': email, // User's email
-      'password': password, // Password
-      'role': 'user', // Default role is 'user'
-      'location': '', // Optional: Add location if needed
-      'phoneNumber': '', // Optional: Add phone number if needed
-      'profileImage': '', // Optional: Add profile image if needed
-      'is_reminder': 'true', // Optional: Assuming this is required
+      'name': username,
+      'fullname': username,
+      'email': email,
+      'password': password,
+      'role': 'user',
+      'location': '',
+      'phoneNumber': '',
+      'profileImage': '',
+      'is_reminder': 'true',
     };
+
+    final AuthController _authController = AuthController();
 
     try {
       final response = await http.post(
@@ -92,24 +106,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
         body: json.encode(data),
       );
 
-      final responseData = json.decode(response.body);
+      if (response.statusCode == 201) {
+        final responseData = json.decode(response.body);
+        final token = responseData['token'];
 
-      if (response.statusCode == 200) {
-        showBottomMessage(context, 'Sign-up successful!');
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
+        // Save token using AuthController
+        await _authController.saveToken(token);
+
+        if (token != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        }
       } else if (response.statusCode == 400) {
+        final responseData = json.decode(response.body);
         showBottomMessage(
-            context, responseData['message'] ?? 'Sign-up failed: Invalid data');
-      } else {
-        showBottomMessage(context, 'Sign-up failed: Unexpected error');
+          context,
+          responseData['message'] ?? 'Email already used',
+        );
       }
     } catch (e) {
       showBottomMessage(
           context, 'Failed to connect to the server. Please try again.');
+    } finally {
+      setState(() {
+        _isLoading = false; // Hide loading indicator
+      });
     }
+  }
+
+// Assuming you have this function to validate the email format
+  bool _isEmailValidSignUp(String email) {
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@gmail.com$');
+    return emailRegex.hasMatch(email);
   }
 
   Widget _buildTextField({
@@ -138,11 +168,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             fontSize: 16,
             color: MyAppTheme.borderColor12,
             fontFamily: 'KantumruyPro',
+            fontWeight: FontWeight.w400,
           ),
           hintStyle: const TextStyle(
             fontSize: 16,
             color: MyAppTheme.borderColor12,
             fontFamily: 'KantumruyPro',
+            fontWeight: FontWeight.w400,
           ),
           enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: MyAppTheme.borderColor12),
@@ -347,15 +379,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: Text(
-                        'Sign Up',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
-                          color: MyAppTheme.primaryColor,
-                          fontFamily: 'KantumruyPro',
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  MyAppTheme.primaryColor),
+                            )
+                          : Text(
+                              'Sign Up',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                color: MyAppTheme.primaryColor,
+                                fontFamily: 'KantumruyPro',
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 10),

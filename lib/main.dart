@@ -25,24 +25,25 @@ class MyApp extends StatelessWidget {
     GetPage(name: '/sign_in', page: () => const SignInScreen()),
     GetPage(name: '/sign_up', page: () => const SignUpScreen()),
     GetPage(name: '/shop', page: () => ShopScreen()),
+
   ];
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/login',
       getPages: routes,
       theme: ThemeData(
-        inputDecorationTheme: InputDecorationTheme(
+        inputDecorationTheme: const InputDecorationTheme(
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: mainColor), // Use the custom color
+            borderSide: BorderSide(color: mainColor), // Use the custom colore
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: mainColor),
           ),
         ),
-        textSelectionTheme: TextSelectionThemeData(
+        textSelectionTheme: const TextSelectionThemeData(
           cursorColor: mainColor, // Set cursor color here
         ),
       ),

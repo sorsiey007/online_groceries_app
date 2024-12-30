@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:async';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart'; // Import GetX for navigation
+import 'package:get/get.dart';
 
 class PopupScreen extends StatefulWidget {
   const PopupScreen({super.key});
@@ -12,18 +13,20 @@ class PopupScreen extends StatefulWidget {
 
 class _PopupScreenState extends State<PopupScreen>
     with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _scaleController;
-  late AnimationController _pulseController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _pulseAnimation;
+  late final AnimationController _fadeController;
+  late final AnimationController _scaleController;
+  late final AnimationController _pulseController;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _pulseAnimation;
+
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize the animation controllers
+    // Initialize animation controllers
     _fadeController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -39,7 +42,7 @@ class _PopupScreenState extends State<PopupScreen>
       vsync: this,
     );
 
-    // Define the animations
+    // Define animations
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeIn,
@@ -57,24 +60,33 @@ class _PopupScreenState extends State<PopupScreen>
       ),
     );
 
-    // Start the animations
+    // Start animations
     _fadeController.forward();
     _scaleController.forward();
     _pulseController.repeat(reverse: true);
 
-    // Navigate to the WelcomeScreen after 3 seconds
-    Timer(const Duration(seconds: 3), () {
-      Get.offNamed('/starting'); // Use GetX navigation
-    });
+    // Navigate after a delay
+    Timer(const Duration(seconds: 3), checkLogin);
   }
 
   @override
   void dispose() {
-    // Dispose the controllers to free up resources
+    // Dispose controllers to free resources
     _fadeController.dispose();
     _scaleController.dispose();
     _pulseController.dispose();
     super.dispose();
+  }
+
+  Future<void> checkLogin() async {
+    final token = await _storage.read(key: 'token');
+    if (token != null) {
+      Get.offNamed('/home');
+      print('User is logged in');
+    } else {
+      Get.offNamed('/starting');
+      print('User is not logged in');
+    }
   }
 
   @override
@@ -89,20 +101,15 @@ class _PopupScreenState extends State<PopupScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Animated pulse effect on the logo and title
+                // Animated logo with pulse effect
                 AnimatedBuilder(
                   animation: _pulseAnimation,
                   builder: (context, child) {
                     return Transform.scale(
                       scale: _pulseAnimation.value,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/images/svg/logo.svg',
-                            height: 60,
-                          ),
-                        ],
+                      child: SvgPicture.asset(
+                        'assets/images/svg/logo.svg',
+                        height: 60,
                       ),
                     );
                   },
