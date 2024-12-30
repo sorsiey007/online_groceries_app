@@ -3,13 +3,16 @@ import 'package:online_groceries_app/themes/app_theme.dart';
 
 class BottomMessageWidget extends StatelessWidget {
   final String message;
+  final bool
+      isSuccess; // Add a flag to differentiate between error and success messages
 
-  const BottomMessageWidget({required this.message});
+  const BottomMessageWidget({required this.message, required this.isSuccess});
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: MediaQuery.of(context).viewInsets.bottom + 20, // Adjust position above keyboard
+      bottom: MediaQuery.of(context).viewInsets.bottom +
+          20, // Adjust position above keyboard
       left: 20,
       right: 20,
       child: Material(
@@ -17,7 +20,9 @@ class BottomMessageWidget extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           decoration: BoxDecoration(
-            color: MyAppTheme.errorColor,
+            color: isSuccess
+                ? MyAppTheme.successColor
+                : MyAppTheme.errorColor, // Conditional color
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -30,7 +35,7 @@ class BottomMessageWidget extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                Icons.info,
+                isSuccess ? Icons.check_circle : Icons.info,
                 color: MyAppTheme.primaryColor,
                 size: 22,
               ),
@@ -54,10 +59,14 @@ class BottomMessageWidget extends StatelessWidget {
   }
 }
 
-void showBottomMessage(BuildContext context, String message) {
+void showBottomMessage(BuildContext context, String message,
+    {bool isSuccess = false}) {
   final overlay = Overlay.of(context);
   final entry = OverlayEntry(
-    builder: (context) => BottomMessageWidget(message: message),
+    builder: (context) => BottomMessageWidget(
+      message: message,
+      isSuccess: isSuccess,
+    ),
   );
 
   overlay.insert(entry);

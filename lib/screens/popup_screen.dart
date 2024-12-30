@@ -91,6 +91,7 @@ class _PopupScreenState extends State<PopupScreen>
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).unfocus();
     return Scaffold(
       backgroundColor: const Color(0xFFEB5E28), // Custom background color
       body: Center(

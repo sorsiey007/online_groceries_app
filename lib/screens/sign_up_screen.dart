@@ -4,6 +4,9 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:online_groceries_app/Widget/BackgroundWidget.dart';
+import 'package:online_groceries_app/Widget/custom_elevated_button.dart';
+import 'package:online_groceries_app/Widget/custom_text_field.dart';
 import 'package:online_groceries_app/controller/auth_controller.dart';
 import 'package:online_groceries_app/screens/home/home_screen.dart';
 import 'package:online_groceries_app/screens/sign_in_screen.dart';
@@ -142,77 +145,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return emailRegex.hasMatch(email);
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    bool obscureText = false,
-    Widget? suffixIcon,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      padding: const EdgeInsets.only(bottom: 5),
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        style: const TextStyle(
-            fontSize: 18,
-            fontFamily: 'KantumruyPro',
-            color: MyAppTheme.backgroundColor),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          suffixIcon: suffixIcon,
-          labelStyle: const TextStyle(
-            fontSize: 16,
-            color: MyAppTheme.borderColor12,
-            fontFamily: 'KantumruyPro',
-            fontWeight: FontWeight.w400,
-          ),
-          hintStyle: const TextStyle(
-            fontSize: 16,
-            color: MyAppTheme.borderColor12,
-            fontFamily: 'KantumruyPro',
-            fontWeight: FontWeight.w400,
-          ),
-          enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: MyAppTheme.borderColor12),
-          ),
-          focusedBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: MyAppTheme.mainColor),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBackground() {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: Align(
-            alignment: Alignment.topRight,
-            child: Image.asset(
-              'assets/images/png/groceries.png',
-              width: 600,
-              height: 600,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-            child: Container(
-              color: MyAppTheme.primaryColor.withOpacity(0.85),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -223,7 +155,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       backgroundColor: MyAppTheme.primaryColor,
       body: Stack(
         children: [
-          _buildBackground(),
+          const BackgroundWidget(
+            imagePath: 'assets/images/png/groceries.png',
+            imageWidth: 600,
+            imageHeight: 600,
+            blurSigmaX: 3.0,
+            blurSigmaY: 3.0,
+            overlayColor: MyAppTheme.primaryColor,
+            overlayOpacity: 0.85,
+          ),
           SafeArea(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
@@ -256,13 +196,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _buildTextField(
+                  CustomTextField(
                     controller: _usernameController,
                     label: 'Username',
                     hint: 'enter your username',
                   ),
                   const SizedBox(height: 10),
-                  _buildTextField(
+                  CustomTextField(
                     controller: _emailController,
                     label: 'Email',
                     hint: 'example@gmail.com',
@@ -271,7 +211,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         : null,
                   ),
                   const SizedBox(height: 10),
-                  _buildTextField(
+                  CustomTextField(
                     controller: _passwordController,
                     label: 'Password',
                     hint: 'enter your password',
@@ -369,31 +309,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(
                     width: double.infinity,
                     height: 50,
-                    child: ElevatedButton(
+                    child: CustomElevatedButton(
+                      isLoading: _isLoading,
                       onPressed: _isTermsAccepted
                           ? _handleRegister
                           : null, // Disable button if terms not accepted
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyAppTheme.mainColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                      buttonText: 'Sign Up',
+                      backgroundColor: MyAppTheme.mainColor,
+                      textColor: MyAppTheme.primaryColor,
+                      loaderColor: MyAppTheme.primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account?',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.black,
+                          fontFamily: 'KantumruyPro',
                         ),
                       ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  MyAppTheme.primaryColor),
-                            )
-                          : Text(
-                              'Sign Up',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                color: MyAppTheme.primaryColor,
-                                fontFamily: 'KantumruyPro',
-                              ),
-                            ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Row(

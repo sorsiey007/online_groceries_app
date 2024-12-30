@@ -25,7 +25,6 @@ class MyApp extends StatelessWidget {
     GetPage(name: '/sign_in', page: () => const SignInScreen()),
     GetPage(name: '/sign_up', page: () => const SignUpScreen()),
     GetPage(name: '/shop', page: () => ShopScreen()),
-
   ];
 
   @override

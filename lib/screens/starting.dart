@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:online_groceries_app/Widget/custom_elevated_button.dart';
 import 'package:online_groceries_app/screens/sign_in_screen.dart';
 import 'package:online_groceries_app/themes/app_theme.dart';
 
@@ -9,6 +10,7 @@ class StartingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FocusScope.of(context).unfocus();
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -92,43 +94,15 @@ class StartingScreen extends StatelessWidget {
                           height:
                               screenHeight * 0.04), // Spacing for the button
                       // Custom button with modern design
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              MyAppTheme.mainColor, // Button background color
-                          padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth *
-                                0.3, // Adjust button width responsively
-                            vertical: screenHeight *
-                                0.02, // Adjust button height responsively
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                12), // More rounded corners
-                          ),
-                          elevation:
-                              12, // Enhanced shadow for better visibility
-                          textStyle: TextStyle(
-                            color: MyAppTheme
-                                .primaryColor, // Text color for the button
-                            fontSize: screenWidth *
-                                0.045, // Adjusted text size for better legibility
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      CustomElevatedButton(
+                        isLoading: false,
                         onPressed: () {
                           Get.to(() => const SignInScreen());
                         },
-                        child: const Text(
-                          'Get Started',
-                          style: TextStyle(
-                            fontFamily:
-                                'KantumruyPro', // Applying KantumruyPro font here
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: MyAppTheme.primaryColor,
-                          ),
-                        ),
+                        buttonText: 'Get Started',
+                        backgroundColor: MyAppTheme.mainColor,
+                        textColor: MyAppTheme.primaryColor,
+                        loaderColor: MyAppTheme.primaryColor,
                       ),
                       SizedBox(
                           height:
