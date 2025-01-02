@@ -12,7 +12,7 @@ import 'package:online_groceries_app/screens/home/home_screen.dart';
 import 'package:online_groceries_app/screens/sign_in_screen.dart';
 import 'package:online_groceries_app/themes/app_theme.dart';
 import 'package:http/http.dart' as http;
-import 'package:online_groceries_app/themes/bottom_message_widget.dart';
+import 'package:online_groceries_app/Widget/bottom_message_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

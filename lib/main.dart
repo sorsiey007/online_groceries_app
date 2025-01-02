@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:online_groceries_app/screens/Popup_Screen.dart';
 import 'package:online_groceries_app/screens/home/ShopScreen.dart';
 import 'package:online_groceries_app/screens/home/home_screen.dart';
+import 'package:online_groceries_app/screens/set_location.dart';
 import 'package:online_groceries_app/screens/sign_up_screen.dart';
 import 'package:online_groceries_app/screens/starting.dart';
 import 'package:online_groceries_app/screens/sign_in_screen.dart';
@@ -25,13 +26,14 @@ class MyApp extends StatelessWidget {
     GetPage(name: '/sign_in', page: () => const SignInScreen()),
     GetPage(name: '/sign_up', page: () => const SignUpScreen()),
     GetPage(name: '/shop', page: () => ShopScreen()),
+    GetPage(name: '/set_location', page: () => SetLocationScreen()),
   ];
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
+      initialRoute: '/set_location',
       getPages: routes,
       theme: ThemeData(
         inputDecorationTheme: const InputDecorationTheme(

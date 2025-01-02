@@ -8,10 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:online_groceries_app/Widget/BackgroundWidget.dart';
 import 'package:online_groceries_app/Widget/custom_elevated_button.dart';
 import 'package:online_groceries_app/Widget/custom_text_field.dart';
-import 'package:online_groceries_app/screens/sign_in_screen.dart';
-import 'package:online_groceries_app/screens/sign_up_screen.dart';
 import 'package:online_groceries_app/themes/app_theme.dart';
-import 'package:online_groceries_app/themes/bottom_message_widget.dart';
+import 'package:online_groceries_app/Widget/bottom_message_widget.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   final String? email;
@@ -32,13 +30,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   void initState() {
     super.initState();
-    // _debouncedValidation = debounce(_validateEmail, _debounceDuration);
-    _emailController.addListener(_validateEmail);
+    // Adding the listener for debounce validation
+    _emailController.addListener(() {
+      _debouncedValidation();
+    });
+    _debouncedValidation = debounce(_validateEmail, _debounceDuration);
   }
 
   @override
   void dispose() {
-    _emailController.removeListener(_validateEmail);
+    _emailController.removeListener(_debouncedValidation); // Remove listener
     _emailController.dispose();
     super.dispose();
   }
@@ -58,6 +59,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final url =
         Uri.parse('https://online-shop-hxhm.onrender.com/api/forget-password');
     final data = {'email': email};
+    if (email.isEmpty) {
+      showBottomMessage(context, 'Please enter your email', isSuccess: false);
+      return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -69,7 +74,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         showBottomMessage(context, 'Reset link sent to email', isSuccess: true);
         Get.offNamed('/sign_in');
       } else {
-        showBottomMessage(context, 'this email is not registered',
+        showBottomMessage(context, 'This email is not registered',
             isSuccess: false);
         print(response.body);
 
@@ -78,7 +83,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         });
       }
     } catch (e) {
-      showBottomMessage(context, 'An error occurred: $e');
+      showBottomMessage(context, 'An error occurred: $e', isSuccess: false);
       setState(() {
         _isLoading = false;
       });
@@ -163,5 +168,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ],
       ),
     );
+  }
+
+  // Debounce helper function
+  VoidCallback debounce(VoidCallback callback, Duration duration) {
+    Timer? timer;
+    return () {
+      if (timer != null) {
+        timer?.cancel();
+      }
+      timer = Timer(duration, callback);
+    };
   }
 }

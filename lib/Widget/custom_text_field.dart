@@ -19,8 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.suffixIcon,
   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
+  @override  Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
